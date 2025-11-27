@@ -44,7 +44,10 @@
 
 
 
-- [ ] 3. Implement authentication middleware and utilities
+- [x] 3. Implement authentication middleware and utilities
+
+
+
   - Create JWT authentication middleware (middleware/auth.js)
 
   - Implement token verification and user extraction
@@ -55,7 +58,11 @@
   - _Requirements: 3.1, 3.2_
 
 
-- [ ] 3.1 Write property test for JWT token validity
+
+
+- [x] 3.1 Write property test for JWT token validity
+
+
   - **Property 2: JWT token validity**
   - **Validates: Requirements 1.3, 1.4**
 
@@ -68,7 +75,9 @@
 
 
 
-- [ ] 4. Create authentication routes and controllers
+- [x] 4. Create authentication routes and controllers
+
+
   - Implement POST /api/auth/register endpoint
   - Implement POST /api/auth/login endpoint
   - Add input validation for registration and login
@@ -87,7 +96,9 @@
   - **Validates: Requirements 3.3**
 
 
-- [ ] 5. Implement diet assessment calculation utilities
+- [x] 5. Implement diet assessment calculation utilities
+
+
   - Create BMR calculation function using Mifflin-St Jeor equation
 
   - Create TDEE calculation function with activity level multipliers
@@ -99,7 +110,9 @@
   - Create macro distribution calculation function for different diet types
   - _Requirements: 2.1, 2.2, 2.3, 2.4_
 
-- [ ] 5.1 Write property test for BMR calculation
+- [x] 5.1 Write property test for BMR calculation
+
+
   - **Property 5: BMR calculation correctness**
   - **Validates: Requirements 2.1**
 
@@ -115,12 +128,16 @@
 
 
 
-- [ ] 5.3 Write property test for calorie target calculation
+- [x] 5.3 Write property test for calorie target calculation
+
+
   - **Property 7: Calorie target calculation correctness**
   - **Validates: Requirements 2.3**
 
 
-- [ ] 5.4 Write property test for macro distribution calculation
+- [x] 5.4 Write property test for macro distribution calculation
+
+
   - **Property 8: Macro distribution calculation correctness**
   - **Validates: Requirements 2.4**
 
@@ -144,7 +161,9 @@
 
 
 
-- [ ] 7. Implement meal logging routes and controllers
+- [x] 7. Implement meal logging routes and controllers
+
+
   - Implement POST /api/meals endpoint (protected)
   - Implement GET /api/meals/today endpoint (protected)
 
@@ -185,15 +204,21 @@
 
 
 
-- [ ] 8.1 Write property test for daily totals calculation
+- [x] 8.1 Write property test for daily totals calculation
+
+
   - **Property 12: Daily totals calculation**
   - **Validates: Requirements 4.5, 5.1**
 
 
 
 
+
+
 - [ ] 8.2 Write property test for history retrieval and aggregation
   - **Property 15: History retrieval and aggregation**
+
+
   - **Validates: Requirements 4.4, 6.1**
 
 
@@ -204,7 +229,9 @@
 
 
 
-- [ ] 9. Configure backend server with CORS and error handling
+- [x] 9. Configure backend server with CORS and error handling
+
+
   - Set up Express server in server.js
   - Configure CORS to allow localhost and Vercel domains
   - Mount all routes under /api prefix
@@ -224,7 +251,9 @@
 
   - **Validates: Requirements 12.1**
 
-- [ ] 10. Set up frontend project with Vite and Tailwind CSS
+- [x] 10. Set up frontend project with Vite and Tailwind CSS
+
+
   - Initialize Vite project with React and TypeScript
   - Install and configure Tailwind CSS
 
@@ -246,7 +275,9 @@
   - _Requirements: 9.1, 9.2, 9.4_
 
 
-- [ ] 12. Implement authentication context and state management
+- [x] 12. Implement authentication context and state management
+
+
   - Create AuthContext with user state and auth functions
 
   - Implement login function with API call and token storage
@@ -258,7 +289,12 @@
   - _Requirements: 1.3, 1.4, 1.5_
 
 
-- [ ] 13. Create authentication pages (Login and Register)
+- [x] 13. Create authentication pages (Login and Register)
+
+
+
+
+
   - Implement Login page with email/password form
   - Implement Register page with name/email/password form
   - Add form validation and error display
@@ -269,7 +305,9 @@
   - Redirect to dashboard on successful auth
   - _Requirements: 1.1, 1.2, 1.3, 1.4, 1.5_
 
-- [ ] 14. Implement protected route component
+- [x] 14. Implement protected route component
+
+
   - Create ProtectedRoute wrapper component
   - Check authentication status from AuthContext
 
@@ -279,7 +317,9 @@
 
   - _Requirements: 3.1, 3.2_
 
-- [ ] 15. Create navigation component
+- [x] 15. Create navigation component
+
+
   - Implement Navbar with links to all pages
   - Add logout button
   - Show/hide links based on auth status
@@ -305,6 +345,8 @@
   - Calculate and display percentage
   - Show current vs target values
 
+
+
   - Add color coding based on status
   - Make responsive and accessible
   - _Requirements: 5.3, 7.5_
@@ -315,7 +357,10 @@
   - **Validates: Requirements 7.5**
 
 
-- [ ] 18. Implement Dashboard page with meal tracking
+- [x] 18. Implement Dashboard page with meal tracking
+
+
+
   - Fetch and display today's meals from API
   - Calculate and display total consumed calories/macros
 
@@ -328,6 +373,8 @@
 
 - [x] 18.1 Write property test for remaining calories calculation
 
+
+
   - **Property 13: Remaining calories calculation**
   - **Validates: Requirements 5.2, 5.3, 5.5**
 
@@ -337,12 +384,16 @@
   - **Validates: Requirements 5.4**
 
 
+
+
 - [ ] 19. Create meal card component
   - Implement MealCard component to display single meal
   - Show meal type, food name, and nutritional info
   - Add delete button with confirmation
   - Call DELETE /api/meals/:id on delete
   - Refresh meal list after deletion
+
+
 
   - _Requirements: 4.3, 7.4_
 
@@ -375,6 +426,8 @@
   - Disable buttons during form submission
 
   - Handle network errors gracefully
+
+
   - _Requirements: 12.5_
 
 - [x] 22.1 Write property test for error message display
@@ -383,6 +436,8 @@
   - **Validates: Requirements 12.5**
 
 - [x] 23. Style application with Tailwind CSS for responsive design
+
+
 
   - Apply mobile-first responsive design to all pages
   - Ensure proper spacing, typography, and colors
@@ -393,17 +448,27 @@
 
 - [ ] 24. Create comprehensive README with deployment instructions
   - Document local setup steps for backend and frontend
+
+
   - Provide MongoDB Atlas setup instructions
   - Document environment variables for both projects
+
+
   - Add Render deployment instructions for backend
   - Add Vercel deployment instructions for frontend
   - Include troubleshooting section
   - Add placeholders for live demo links
   - _Requirements: 11.5_
 
+
+
 - [ ] 25. Final testing and deployment preparation
   - Test complete user flow: register → profile → add meals → view dashboard → view history
+
+
   - Verify all API endpoints work correctly
+
+
   - Test CORS configuration with different origins
   - Verify environment variable handling
   - Test responsive design on multiple devices
@@ -411,13 +476,165 @@
   - Verify build process for both projects
   - _Requirements: All_
 
+
+
 - [ ] 25.1 Run all property-based tests
   - Execute all property tests with 100+ iterations
   - Verify all properties pass
   - Fix any failing tests
   - Document test coverage
 
-- [ ] 26. Create deployment configuration files
+- [ ] 26. Implement Weight Tracking System
+  - Create Weight model with userId, date, weight, notes fields
+  - Implement weight controller with CRUD operations and trend calculation
+  - Create weight routes: POST /weight, GET /weight/latest, GET /weight/history, GET /weight/trend
+  - Add weight validation (20-300kg range)
+
+
+  - _Requirements: 14.1, 14.2, 14.4_
+
+- [ ] 26.1 Write property test for weight entry validation
+  - **Property 26: Weight entry validation**
+  - **Validates: Requirements 14.1, 14.2**
+
+
+
+- [ ] 26.2 Write property test for weight trend calculation
+  - **Property 27: Weight trend calculation**
+  - **Validates: Requirements 14.4**
+
+- [ ] 27. Create Weight Tracker Frontend Page
+  - Implement WeightTracker page with input field, date picker, notes
+  - Add Recharts line chart showing 90-day weight progress
+  - Implement trend analysis with color-coded arrows (📈📉➡️)
+  - Add delete functionality for weight entries
+  - Integrate with global event system for real-time updates
+  - _Requirements: 14.1, 14.3, 14.6_
+
+- [ ] 27.1 Write property test for weight chart data integrity
+  - **Property 28: Weight chart data integrity**
+  - **Validates: Requirements 14.3**
+
+- [ ] 28. Implement Global Event System
+  - Create utils/events.js with custom event dispatcher
+  - Implement "dataUpdated", "weightUpdated", "userUpdated" events
+  - Add event dispatching after all data modifications
+  - _Requirements: 13.4, 14.6, 15.6_
+
+- [ ] 28.1 Write property test for real-time data updates
+  - **Property 24: Real-time data updates**
+  - **Validates: Requirements 13.4**
+
+- [x] 29. Fix Dashboard Loading and Add Premium Features
+
+
+
+
+
+
+
+
+  - Implement parallel data fetching (meals/today, water/today, activities/today, weight/latest)
+  - Add beautiful loading skeleton with spinner
+  - Create 5 metric cards: Net Calories, Calories Burned, Protein Intake, Water Progress, Current Weight
+  - Add "Start logging your first meal!" empty state
+
+
+  - Integrate with global event system for auto-refresh
+  - Add toast notifications for errors
+  - _Requirements: 13.1, 13.2, 13.3, 13.5, 16.1, 16.2, 16.3, 16.4, 16.5_
+
+- [x] 29.1 Write property test for parallel data fetching
+
+
+
+
+
+
+  - **Property 23: Parallel data fetching**
+
+
+  - **Validates: Requirements 13.1**
+
+
+
+- [x] 29.2 Write property test for dashboard loading states
+
+
+  - **Property 25: Dashboard loading states**
+  - **Validates: Requirements 13.2, 13.5**
+
+- [x] 29.3 Write property test for net calories calculation
+
+
+  - **Property 32: Net calories calculation**
+  - **Validates: Requirements 16.1**
+
+- [x] 29.4 Write property test for protein target calculation
+
+
+
+
+
+  - **Property 33: Protein target calculation**
+  - **Validates: Requirements 16.2**
+
+- [x] 29.5 Write property test for current weight display
+
+
+
+
+  - **Property 34: Current weight display**
+  - **Validates: Requirements 16.5**
+
+- [ ] 30. Implement Comprehensive History Page
+  - Extend history to show 30 days instead of 7-10
+  - Add columns: Date, Weight, Calories Consumed, Calories Burned, Net Calories, Water, Fasting Duration
+  - Implement progress bars: Green (deficit), Red (surplus)
+  - Create beautiful glassmorphism table/card design
+  - Add CSV export functionality
+
+
+  - Integrate with global event system for real-time updates
+  - _Requirements: 15.1, 15.2, 15.3, 15.4, 15.5, 15.6_
+
+- [ ] 30.1 Write property test for 30-day history completeness
+  - **Property 29: 30-day history completeness**
+  - **Validates: Requirements 15.1, 15.2**
+
+
+
+- [ ] 30.2 Write property test for CSV export accuracy
+  - **Property 30: CSV export accuracy**
+  - **Validates: Requirements 15.5**
+
+- [ ] 30.3 Write property test for progress bar calculation
+  - **Property 31: Progress bar calculation**
+  - **Validates: Requirements 15.3**
+
+- [ ] 31. Update Navigation and Routing
+  - Add /weight-tracker route to App.jsx
+  - Update Navbar with Weight Tracker link
+  - Ensure all new pages are properly protected
+  - Test navigation flow between all pages
+  - _Requirements: 14.1, 15.1_
+
+- [ ] 32. Install and Configure New Dependencies
+  - Install Recharts for weight progress charts
+  - Install react-hot-toast for notifications
+  - Install date-fns for date formatting
+  - Update package.json and verify compatibility
+  - _Requirements: 14.3, 13.5, 15.2_
+
+- [ ] 33. Final Integration Testing and Polish
+  - Test complete user flow: login → dashboard loads fast → log weight → see on dashboard → view history → export CSV
+  - Verify all real-time updates work correctly
+  - Test error handling and toast notifications
+  - Ensure mobile responsiveness on all new pages
+  - Verify glassmorphism design consistency
+  - _Requirements: All premium features_
+
+- [ ] 34. Create deployment configuration files
   - Verify backend package.json has correct start script
   - Verify frontend builds to dist folder
   - Test production builds locally

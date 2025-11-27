@@ -100,31 +100,30 @@ describe('Property 7: Calorie target calculation correctness', () => {
 
 describe('Property 8: Macro distribution calculation correctness', () => {
   // Feature: diet-tracker, Property 8: Macro distribution calculation correctness
-  it('should calculate macros according to diet type percentages', () => {
+  it('should calculate macros according to diet type and weight-based protein', () => {
     fc.assert(
       fc.property(
         fc.record({
           calories: fc.integer({ min: 1000, max: 5000 }),
           dietType: fc.constantFrom('balanced', 'low_carb', 'high_protein', 'keto'),
+          weight: fc.integer({ min: 20, max: 200 }),
         }),
         (data) => {
-          const macros = calculateMacros(data.calories, data.dietType);
+          const macros = calculateMacros(data.calories, data.dietType, data.weight);
           
-          const distributions = {
-            balanced: { protein: 0.3, carbs: 0.4, fat: 0.3 },
-            low_carb: { protein: 0.35, carbs: 0.25, fat: 0.4 },
-            high_protein: { protein: 0.4, carbs: 0.3, fat: 0.3 },
-            keto: { protein: 0.25, carbs: 0.05, fat: 0.7 },
-          };
-          
-          const dist = distributions[data.dietType];
-          const expectedProtein = Math.round((data.calories * dist.protein) / 4);
-          const expectedCarbs = Math.round((data.calories * dist.carbs) / 4);
-          const expectedFat = Math.round((data.calories * dist.fat) / 9);
-          
+          // Protein should be 2g per kg body weight
+          const expectedProtein = Math.round(2.0 * data.weight);
           expect(macros.protein).toBe(expectedProtein);
-          expect(macros.carbs).toBe(expectedCarbs);
-          expect(macros.fat).toBe(expectedFat);
+          
+          // All macros should be non-negative
+          expect(macros.protein).toBeGreaterThanOrEqual(0);
+          expect(macros.carbs).toBeGreaterThanOrEqual(0);
+          expect(macros.fat).toBeGreaterThanOrEqual(0);
+          
+          // Total calories from macros should be reasonable (within 10% of target)
+          const totalCalories = (macros.protein * 4) + (macros.carbs * 4) + (macros.fat * 9);
+          const tolerance = data.calories * 0.1;
+          expect(Math.abs(totalCalories - data.calories)).toBeLessThanOrEqual(tolerance);
         }
       ),
       { numRuns: 100 }

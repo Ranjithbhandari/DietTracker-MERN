@@ -1,129 +1,127 @@
+// backend/routes/user.js
 import express from 'express';
 import User from '../models/User.js';
-import { protect } from '../middleware/auth.js';
+import { protect as auth } from '../middleware/auth.js';
 import { calculateAssessment } from '../utils/calculations.js';
 
 const router = express.Router();
 
+// PROTECT ALL ROUTES IN THIS FILE (Best practice!)
+router.use(auth);
+
 // @route   GET /api/user/profile
 // @desc    Get user profile
 // @access  Private
-router.get('/profile', protect, async (req, res) => {
+router.get('/profile', async (req, res) => {
   try {
-    const user = await User.findById(req.user.id);
+    const user = await User.findById(req.user.id).select('-password');
 
     if (!user) {
-      return res.status(404).json({
-        success: false,
-        message: 'User not found',
-      });
+      return res.status(404).json({ success: false, message: 'User not found' });
     }
 
-    res.status(200).json({
-      success: true,
-      user,
-    });
+    res.json(user);
   } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: error.message || 'Server error',
-    });
+    res.status(500).json({ success: false, message: 'Server error' });
   }
 });
 
 // @route   PUT /api/user/profile
-// @desc    Update user profile and assessment
+// @desc    Update profile + calculate BMR/TDEE/macros
 // @access  Private
-router.put('/profile', protect, async (req, res) => {
+router.put('/profile', async (req, res) => {
   try {
-    const { age, gender, height, weight, activityLevel, goal, dietType } = req.body;
+    const { age, gender, height, weight, activityLevel, goal, dietType, burnGoal } = req.body;
 
-    // Validation
+    // Required fields
     if (!age || !gender || !height || !weight || !activityLevel || !goal || !dietType) {
       return res.status(400).json({
         success: false,
-        message: 'Please provide all required fields',
+        message: 'Please fill all required fields',
       });
     }
 
-    // Calculate assessment
+    // Burn goal validation
+    if (burnGoal !== undefined && (burnGoal < 100 || burnGoal > 3000)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Daily burn goal must be 100–3000 kcal',
+      });
+    }
+
+    // Calculate nutrition targets
     const assessment = calculateAssessment(
-      age,
+      Number(age),
       gender,
-      height,
-      weight,
+      Number(height),
+      Number(weight),
       activityLevel,
       goal,
       dietType
     );
 
     // Update user
-    const user = await User.findByIdAndUpdate(
+    const updatedUser = await User.findByIdAndUpdate(
       req.user.id,
       {
-        age,
+        age: Number(age),
         gender,
-        height,
-        weight,
+        height: Number(height),
+        weight: Number(weight),
         activityLevel,
         goal,
         dietType,
+        burnGoal: burnGoal ? Number(burnGoal) : 500,
         bmr: assessment.bmr,
         tdee: assessment.tdee,
         calorieTarget: assessment.calorieTarget,
         macros: assessment.macros,
       },
       { new: true, runValidators: true }
-    );
+    ).select('-password');
 
-    res.status(200).json({
-      success: true,
-      user,
-      assessment,
-    });
+    res.json({ success: true, message: 'Profile updated successfully', user: updatedUser });
   } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: error.message || 'Server error',
-    });
+    console.error('Profile update error:', error);
+    res.status(500).json({ success: false, message: 'Server error' });
   }
 });
 
 // @route   PUT /api/user/settings
-// @desc    Update user settings
+// @desc    Update custom calorie target
 // @access  Private
-router.put('/settings', protect, async (req, res) => {
+router.put('/settings', async (req, res) => {
   try {
     const { customCalorieTarget, useCustomTarget } = req.body;
 
-    // Validation
-    if (useCustomTarget && (!customCalorieTarget || customCalorieTarget < 500 || customCalorieTarget > 10000)) {
-      return res.status(400).json({
-        success: false,
-        message: 'Custom calorie target must be between 500 and 10,000',
-      });
+    const updates = {};
+    if (useCustomTarget && customCalorieTarget) {
+      const target = Number(customCalorieTarget);
+      if (target < 800 || target > 8000) {
+        return res.status(400).json({
+          success: false,
+          message: 'Custom target must be 800–8000 kcal',
+        });
+      }
+      updates.customCalorieTarget = target;
+      updates.useCustomTarget = true;
+    } else {
+      updates.useCustomTarget = false;
+      updates.customCalorieTarget = null;
     }
 
-    // Update user settings
-    const user = await User.findByIdAndUpdate(
-      req.user.id,
-      {
-        customCalorieTarget: customCalorieTarget ? parseInt(customCalorieTarget) : undefined,
-        useCustomTarget: Boolean(useCustomTarget),
-      },
-      { new: true, runValidators: true }
-    );
+    const user = await User.findByIdAndUpdate(req.user.id, updates, {
+      new: true,
+      runValidators: true,
+    }).select('-password');
 
-    res.status(200).json({
+    res.json({
       success: true,
       user,
-      message: 'Settings updated successfully',
+      message: 'Settings saved!',
     });
   } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: error.message || 'Server error',
-    });
+    res.status(500).json({ success: false, message: 'Server error' });
   }
 });
 

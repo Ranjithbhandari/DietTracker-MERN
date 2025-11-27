@@ -4,13 +4,30 @@ A full-stack MERN application for tracking diet and lifestyle metrics with perso
 
 ## 🚀 Features
 
+### Core Features
 - **User Authentication**: Secure registration and login with JWT
 - **Diet Assessment**: Calculate BMR, TDEE, and personalized calorie targets using Mifflin-St Jeor equation
-- **Meal Logging**: Track daily meals with nutritional information
+- **Meal Logging**: Track daily meals with comprehensive Indian food database
 - **Progress Tracking**: Real-time progress visualization with circular indicators
-- **History & Compliance**: View 7-10 days of history with compliance status
-- **Responsive Design**: Mobile-first UI with Tailwind CSS
-- **Property-Based Testing**: Comprehensive correctness properties with fast-check
+- **History & Compliance**: View 30-day history with compliance status and CSV export
+- **Responsive Design**: Mobile-first UI with beautiful glassmorphism design
+
+### Premium Features
+- **Weight Tracking**: Log daily weight with 90-day progress charts and trend analysis
+- **Activity Tracking**: Log exercises and activities with calorie burn calculation
+- **Water Tracking**: Monitor daily water intake with goal tracking
+- **Fasting Timer**: Intermittent fasting timer with session tracking
+- **Real-time Updates**: Global event system for instant UI updates
+- **Indian Food Database**: Comprehensive database of Indian foods with nutritional info
+- **Custom Foods**: Add and manage custom food items
+- **Recipe Management**: Create and save custom recipes
+- **Advanced Analytics**: Net calories, protein targets, and comprehensive metrics
+
+### Technical Features
+- **Property-Based Testing**: 34+ correctness properties with fast-check
+- **Real-time Data Sync**: Global event system for instant updates
+- **Advanced Error Handling**: Comprehensive error handling with user-friendly messages
+- **Performance Optimized**: Parallel data fetching and optimized queries
 
 ## 📋 Tech Stack
 
@@ -29,6 +46,9 @@ A full-stack MERN application for tracking diet and lifestyle metrics with perso
 - **Tailwind CSS** - Styling
 - **React Router** - Routing
 - **Axios** - HTTP client
+- **Recharts** - Data visualization
+- **React Hot Toast** - Toast notifications
+- **date-fns** - Date manipulation
 
 ### Testing
 - **Jest** - Backend testing
@@ -162,8 +182,32 @@ npm test
 ### Meals
 - `POST /api/meals` - Create meal entry (protected)
 - `GET /api/meals/today` - Get today's meals (protected)
-- `GET /api/meals/history` - Get last 7-10 days (protected)
+- `GET /api/meals/history` - Get last 30 days (protected)
 - `DELETE /api/meals/:id` - Delete meal (protected)
+
+### Weight Tracking
+- `POST /api/weight` - Log weight entry (protected)
+- `GET /api/weight/latest` - Get current weight (protected)
+- `GET /api/weight/history` - Get weight history (protected)
+- `GET /api/weight/trend` - Get weight trend analysis (protected)
+- `DELETE /api/weight/:id` - Delete weight entry (protected)
+
+### Activities
+- `POST /api/activities` - Log activity (protected)
+- `GET /api/activities/today` - Get today's activities (protected)
+- `GET /api/activities/history` - Get activity history (protected)
+- `DELETE /api/activities/:id` - Delete activity (protected)
+
+### Water Tracking
+- `POST /api/water` - Log water intake (protected)
+- `GET /api/water/today` - Get today's water intake (protected)
+- `PUT /api/water/goal` - Update water goal (protected)
+
+### Fasting
+- `POST /api/fasting/start` - Start fasting session (protected)
+- `POST /api/fasting/end` - End fasting session (protected)
+- `GET /api/fasting/current` - Get current session (protected)
+- `GET /api/fasting/history` - Get fasting history (protected)
 
 ## 🔐 Authentication
 
@@ -186,28 +230,91 @@ The application is fully responsive:
 
 ### Deploy Backend to Render
 
-1. Push your code to GitHub
-2. Go to [Render](https://render.com)
-3. Create new Web Service
-4. Connect your GitHub repository
-5. Set environment variables:
-   - `MONGODB_URI`: Your MongoDB connection string
-   - `JWT_SECRET`: Your JWT secret
-   - `NODE_ENV`: production
-6. Set build command: `npm install`
-7. Set start command: `npm start`
-8. Deploy
+1. **Prepare your repository**:
+   - Push your code to GitHub
+   - Ensure `package.json` has correct start script: `"start": "node server.js"`
+
+2. **Create Render Web Service**:
+   - Go to [Render](https://render.com) and sign up/login
+   - Click "New" → "Web Service"
+   - Connect your GitHub repository
+   - Select the backend folder if using monorepo
+
+3. **Configure deployment settings**:
+   - **Name**: `diettracker-backend` (or your preferred name)
+   - **Environment**: `Node`
+   - **Build Command**: `npm install`
+   - **Start Command**: `npm start`
+   - **Instance Type**: Free (or paid for better performance)
+
+4. **Set environment variables**:
+   ```
+   MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/diettracker?retryWrites=true&w=majority
+   JWT_SECRET=your-super-secret-jwt-key-minimum-32-characters-long
+   NODE_ENV=production
+   PORT=5000
+   ```
+
+5. **Deploy**: Click "Create Web Service"
+
+6. **Note your backend URL**: `https://your-app-name.onrender.com`
 
 ### Deploy Frontend to Vercel
 
-1. Push your code to GitHub
-2. Go to [Vercel](https://vercel.com)
-3. Import your project
-4. Set environment variables:
-   - `VITE_API_URL`: Your Render backend URL (e.g., https://your-app.onrender.com/api)
-5. Build command: `npm run build`
-6. Output directory: `dist`
-7. Deploy
+1. **Prepare your repository**:
+   - Ensure frontend builds successfully: `npm run build`
+   - Verify `dist` folder is created
+
+2. **Create Vercel Project**:
+   - Go to [Vercel](https://vercel.com) and sign up/login
+   - Click "New Project"
+   - Import your GitHub repository
+   - Select the frontend folder if using monorepo
+
+3. **Configure build settings**:
+   - **Framework Preset**: Vite
+   - **Build Command**: `npm run build`
+   - **Output Directory**: `dist`
+   - **Install Command**: `npm install`
+
+4. **Set environment variables**:
+   ```
+   VITE_API_URL=https://your-backend-app.onrender.com/api
+   ```
+
+5. **Deploy**: Click "Deploy"
+
+6. **Custom Domain** (Optional):
+   - Go to Project Settings → Domains
+   - Add your custom domain
+
+### Post-Deployment Checklist
+
+- [ ] Backend health check: `https://your-backend.onrender.com/api/health`
+- [ ] Frontend loads correctly
+- [ ] User registration works
+- [ ] User login works
+- [ ] API calls work from frontend to backend
+- [ ] CORS is configured correctly
+- [ ] MongoDB connection is working
+- [ ] All environment variables are set
+
+### Troubleshooting Deployment
+
+**Backend Issues**:
+- Check Render logs for errors
+- Verify MongoDB URI is correct
+- Ensure JWT_SECRET is set
+- Check that PORT is set to 5000 or process.env.PORT
+
+**Frontend Issues**:
+- Verify VITE_API_URL points to your backend
+- Check browser console for CORS errors
+- Ensure backend allows your Vercel domain in CORS settings
+
+**CORS Issues**:
+- Backend automatically allows `*.vercel.app` domains
+- For custom domains, update CORS configuration in `backend/server.js`
 
 ## 🔄 Environment Variables
 

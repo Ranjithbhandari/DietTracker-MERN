@@ -1,7 +1,7 @@
 import express from 'express';
 import mongoose from 'mongoose';
 import Activity from '../models/Activity.js';
-import { protect } from '../middleware/auth.js';
+import { protect as auth } from '../middleware/auth.js';
 
 const router = express.Router();
 
@@ -29,7 +29,7 @@ const calculateCaloriesBurned = (activityType, intensity, duration, weight = 70)
 // @route   POST /api/activities
 // @desc    Create an activity entry
 // @access  Private
-router.post('/', protect, async (req, res) => {
+router.post('/', auth, async (req, res) => {
   try {
     const { activityType, duration, intensity, notes } = req.body;
 
@@ -71,7 +71,7 @@ router.post('/', protect, async (req, res) => {
 // @route   GET /api/activities/today
 // @desc    Get today's activities
 // @access  Private
-router.get('/today', protect, async (req, res) => {
+router.get('/today', auth, async (req, res) => {
   try {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
@@ -102,7 +102,7 @@ router.get('/today', protect, async (req, res) => {
 // @route   DELETE /api/activities/:id
 // @desc    Delete an activity entry
 // @access  Private
-router.delete('/:id', protect, async (req, res) => {
+router.delete('/:id', auth, async (req, res) => {
   try {
     const activity = await Activity.findById(req.params.id);
 
@@ -138,7 +138,7 @@ router.delete('/:id', protect, async (req, res) => {
 // @route   GET /api/activities/history
 // @desc    Get activity history (last 7-10 days)
 // @access  Private
-router.get('/history', protect, async (req, res) => {
+router.get('/history', auth, async (req, res) => {
   try {
     const today = new Date();
     today.setHours(0, 0, 0, 0);

@@ -6,6 +6,11 @@ import authRoutes from './routes/auth.js';
 import userRoutes from './routes/user.js';
 import mealRoutes from './routes/meals.js';
 import activityRoutes from './routes/activities.js';
+import waterRoutes from './routes/water.js';
+import weightRoutes from './routes/weight.js';
+import customFoodRoutes from './routes/customFoods.js';
+import recipeRoutes from './routes/recipes.js';
+import fastingRoutes from './routes/fasting.js';
 
 dotenv.config();
 
@@ -15,30 +20,12 @@ const app = express();
 connectDB();
 
 // Middleware
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
-// CORS configuration
-const allowedOrigins = [
-  'http://localhost:3000',
-  'http://localhost:5173',
-  'http://localhost:5174',
-  /\.vercel\.app$/,
-];
-
+// CORS configuration - FIXED
 app.use(cors({
-  origin: (origin, callback) => {
-    if (!origin || allowedOrigins.some(allowed => {
-      if (allowed instanceof RegExp) {
-        return allowed.test(origin);
-      }
-      return allowed === origin;
-    })) {
-      callback(null, true);
-    } else {
-      callback(new Error('Not allowed by CORS'));
-    }
-  },
+  origin: 'http://localhost:5173',
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
@@ -49,28 +36,51 @@ app.use('/api/auth', authRoutes);
 app.use('/api/user', userRoutes);
 app.use('/api/meals', mealRoutes);
 app.use('/api/activities', activityRoutes);
+app.use('/api/water', waterRoutes);
+app.use('/api/weight', weightRoutes);
+app.use('/api/custom-foods', customFoodRoutes);
+app.use('/api/recipes', recipeRoutes);
+app.use('/api/fasting', fastingRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {
-  res.status(200).json({ success: true, message: 'Server is running' });
+  res.status(200).json({ 
+    success: true, 
+    message: 'Server is running',
+    timestamp: new Date().toISOString()
+  });
+});
+
+// Test route
+app.get('/api/test', (req, res) => {
+  res.json({ message: 'API is working!' });
 });
 
 // 404 handler
 app.use((req, res) => {
   res.status(404).json({
     success: false,
-    message: 'Route not found',
+    message: `Route ${req.originalUrl} not found`,
   });
 });
 
 // Global error handler
 app.use((err, req, res, next) => {
-  console.error(err);
+  console.error('Error:', err);
   
-  if (err.message === 'Not allowed by CORS') {
-    return res.status(403).json({
+  if (err.name === 'ValidationError') {
+    const errors = Object.values(err.errors).map(e => e.message);
+    return res.status(400).json({
       success: false,
-      message: 'CORS policy violation',
+      message: 'Validation Error',
+      errors
+    });
+  }
+
+  if (err.code === 11000) {
+    return res.status(400).json({
+      success: false,
+      message: 'Duplicate field value entered'
     });
   }
 
@@ -83,7 +93,9 @@ app.use((err, req, res, next) => {
 const PORT = process.env.PORT || 5000;
 
 app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+  console.log(`🚀 Server running on port ${PORT}`);
+  console.log(`📡 API available at http://localhost:${PORT}/api`);
+  console.log(`🔗 Health check: http://localhost:${PORT}/api/health`);
 });
 
 export default app;

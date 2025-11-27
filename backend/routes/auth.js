@@ -1,11 +1,11 @@
 import express from 'express';
 import User from '../models/User.js';
-import { generateToken } from '../middleware/auth.js';
+import { protect as auth } from '../middleware/auth.js';
 
 const router = express.Router();
 
+// @desc    Register user
 // @route   POST /api/auth/register
-// @desc    Register a new user
 // @access  Public
 router.post('/register', async (req, res) => {
   try {
@@ -15,48 +15,75 @@ router.post('/register', async (req, res) => {
     if (!name || !email || !password) {
       return res.status(400).json({
         success: false,
-        message: 'Please provide name, email, and password',
+        message: 'Please provide name, email and password'
       });
     }
 
-    // Check if user already exists
-    let user = await User.findOne({ email });
-    if (user) {
-      return res.status(409).json({
+    if (password.length < 6) {
+      return res.status(400).json({
         success: false,
-        message: 'Email already registered',
+        message: 'Password must be at least 6 characters'
+      });
+    }
+
+    // Check if user exists
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      return res.status(400).json({
+        success: false,
+        message: 'User already exists with this email'
       });
     }
 
     // Create user
-    user = await User.create({
+    const user = await User.create({
       name,
       email,
-      password,
+      password
     });
 
     // Generate token
-    const token = generateToken(user._id);
+    const token = user.generateToken();
+
+    // Return user data (without password)
+    const userData = {
+      _id: user._id,
+      name: user.name,
+      email: user.email,
+      age: user.age,
+      gender: user.gender,
+      height: user.height,
+      weight: user.weight,
+      activityLevel: user.activityLevel,
+      goal: user.goal,
+      dietType: user.dietType,
+      calorieTarget: user.calorieTarget,
+      customCalorieTarget: user.customCalorieTarget,
+      useCustomTarget: user.useCustomTarget,
+      bmr: user.bmr,
+      tdee: user.tdee,
+      burnGoal: user.burnGoal,
+      macros: user.macros,
+      createdAt: user.createdAt
+    };
 
     res.status(201).json({
       success: true,
       token,
-      user: {
-        id: user._id,
-        name: user.name,
-        email: user.email,
-      },
+      user: userData
     });
+
   } catch (error) {
+    console.error('Register error:', error);
     res.status(500).json({
       success: false,
-      message: error.message || 'Server error',
+      message: 'Server error during registration'
     });
   }
 });
 
-// @route   POST /api/auth/login
 // @desc    Login user
+// @route   POST /api/auth/login
 // @access  Public
 router.post('/login', async (req, res) => {
   try {
@@ -66,16 +93,16 @@ router.post('/login', async (req, res) => {
     if (!email || !password) {
       return res.status(400).json({
         success: false,
-        message: 'Please provide email and password',
+        message: 'Please provide email and password'
       });
     }
 
-    // Check for user
+    // Check for user (include password for comparison)
     const user = await User.findOne({ email }).select('+password');
     if (!user) {
       return res.status(401).json({
         success: false,
-        message: 'Invalid credentials',
+        message: 'Invalid email or password'
       });
     }
 
@@ -84,26 +111,73 @@ router.post('/login', async (req, res) => {
     if (!isMatch) {
       return res.status(401).json({
         success: false,
-        message: 'Invalid credentials',
+        message: 'Invalid email or password'
       });
     }
 
     // Generate token
-    const token = generateToken(user._id);
+    const token = user.generateToken();
 
-    res.status(200).json({
+    // Return user data (without password)
+    const userData = {
+      _id: user._id,
+      name: user.name,
+      email: user.email,
+      age: user.age,
+      gender: user.gender,
+      height: user.height,
+      weight: user.weight,
+      activityLevel: user.activityLevel,
+      goal: user.goal,
+      dietType: user.dietType,
+      calorieTarget: user.calorieTarget,
+      customCalorieTarget: user.customCalorieTarget,
+      useCustomTarget: user.useCustomTarget,
+      bmr: user.bmr,
+      tdee: user.tdee,
+      burnGoal: user.burnGoal,
+      macros: user.macros,
+      createdAt: user.createdAt
+    };
+
+    res.json({
       success: true,
       token,
-      user: {
-        id: user._id,
-        name: user.name,
-        email: user.email,
-      },
+      user: userData
     });
+
   } catch (error) {
+    console.error('Login error:', error);
     res.status(500).json({
       success: false,
-      message: error.message || 'Server error',
+      message: 'Server error during login'
+    });
+  }
+});
+
+// @desc    Get current user
+// @route   GET /api/auth/me
+// @access  Private
+router.get('/me', auth, async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id);
+    
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found'
+      });
+    }
+
+    res.json({
+      success: true,
+      user
+    });
+  } catch (error) {
+    console.error('Get user error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Server error'
     });
   }
 });

@@ -2,6 +2,7 @@ import fc from 'fast-check';
 import jwt from 'jsonwebtoken';
 import { generateToken } from '../middleware/auth.js';
 import mongoose from 'mongoose';
+import { describe, it, expect } from '@jest/globals';
 
 // Set JWT_SECRET for testing
 process.env.JWT_SECRET = 'test-secret-key-for-testing-purposes-only';

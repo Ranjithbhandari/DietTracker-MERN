@@ -161,3 +161,53 @@ The DietTracker is an Online Diet & Lifestyle Assessment Tool built as a full-st
 3. WHEN authentication fails THEN the DietTracker System SHALL return a 401 status with appropriate message
 4. WHEN a resource is not found THEN the DietTracker System SHALL return a 404 status
 5. WHEN the frontend receives an error response THEN the DietTracker System SHALL display user-friendly error messages in the UI
+
+### Requirement 13: Dashboard Loading and Real-time Updates
+
+**User Story:** As a user, I want the dashboard to load quickly with all my data and update automatically when I make changes, so that I have an instant view of my progress.
+
+#### Acceptance Criteria
+
+1. WHEN a user navigates to the dashboard THEN the DietTracker System SHALL fetch all data in parallel (meals/today, water/today, activities/today, user profile) within 1 second
+2. WHEN the dashboard is loading THEN the DietTracker System SHALL display a beautiful loading skeleton with spinner and "Loading your dashboard..." message
+3. WHEN no meal data exists THEN the DietTracker System SHALL show "Start logging your first meal!" card with call-to-action button
+4. WHEN any data is added, updated, or deleted THEN the DietTracker System SHALL dispatch a global "dataUpdated" event and automatically refresh the dashboard
+5. WHEN API requests fail THEN the DietTracker System SHALL display toast notifications with error messages
+
+### Requirement 14: Weight Tracking System
+
+**User Story:** As a user, I want to log my daily weight and see progress over time, so that I can track my weight loss or gain journey.
+
+#### Acceptance Criteria
+
+1. WHEN a user accesses the weight tracker page THEN the DietTracker System SHALL display an input field, date picker, and "Log Weight" button
+2. WHEN a user submits weight data THEN the DietTracker System SHALL save the entry to MongoDB with userId, date, weight, and optional notes
+3. WHEN weight data exists THEN the DietTracker System SHALL display a beautiful line chart using Recharts showing weight progress over the last 90 days
+4. WHEN calculating weight trends THEN the DietTracker System SHALL analyze the last 7 entries and show trend arrows (📈 up, 📉 down, ➡️ stable)
+5. WHEN the dashboard loads THEN the DietTracker System SHALL display current weight and trend arrow in a dedicated card
+6. WHEN weight is logged THEN the DietTracker System SHALL dispatch "weightUpdated" event and update dashboard and history pages instantly
+
+### Requirement 15: Comprehensive History Tracking
+
+**User Story:** As a user, I want to see a complete 30-day history of all my tracked data, so that I can analyze patterns and export my progress.
+
+#### Acceptance Criteria
+
+1. WHEN a user accesses the history page THEN the DietTracker System SHALL display daily rows for the last 30 days
+2. WHEN displaying each day THEN the DietTracker System SHALL show date, weight (if logged), calories consumed, calories burned from activities, net calories, water intake (ml), and fasting duration (if any)
+3. WHEN calculating daily status THEN the DietTracker System SHALL show progress bars colored green for calorie deficit and red for calorie surplus
+4. WHEN displaying the history THEN the DietTracker System SHALL use beautiful glassmorphism card/table design with proper mobile responsiveness
+5. WHEN a user clicks export THEN the DietTracker System SHALL generate and download a CSV file with complete 30-day history data
+6. WHEN any data changes THEN the DietTracker System SHALL automatically refresh the history page without requiring manual refresh
+
+### Requirement 16: Enhanced Dashboard Features
+
+**User Story:** As a user, I want my dashboard to show comprehensive daily metrics including net calories, protein intake, water progress, and current weight, so that I have a complete overview of my health tracking.
+
+#### Acceptance Criteria
+
+1. WHEN the dashboard loads THEN the DietTracker System SHALL display net calories (consumed minus burned from activities) in a prominent card
+2. WHEN displaying protein intake THEN the DietTracker System SHALL show current protein consumption with a target of 2g per kg of body weight
+3. WHEN showing water progress THEN the DietTracker System SHALL display current water intake with goal tracking and progress indicator
+4. WHEN displaying calories burned THEN the DietTracker System SHALL show total calories burned from logged activities
+5. WHEN showing current weight THEN the DietTracker System SHALL display the most recent weight entry with trend indicator (📈📉➡️)

@@ -1,5 +1,6 @@
 import mongoose from 'mongoose';
 import bcryptjs from 'bcryptjs';
+import jwt from 'jsonwebtoken';
 
 const userSchema = new mongoose.Schema(
   {
@@ -79,6 +80,12 @@ const userSchema = new mongoose.Schema(
       min: 500,
       max: 10000,
     },
+    burnGoal: {
+      type: Number,
+      min: 100,
+      max: 2000,
+      default: 500,
+    },
     macros: {
       protein: Number,
       carbs: Number,
@@ -91,16 +98,30 @@ const userSchema = new mongoose.Schema(
 // Hash password before saving
 userSchema.pre('save', async function (next) {
   if (!this.isModified('password')) {
-    next();
+    return next();
   }
 
-  const salt = await bcryptjs.genSalt(10);
-  this.password = await bcryptjs.hash(this.password, salt);
+  try {
+    const salt = await bcryptjs.genSalt(10);
+    this.password = await bcryptjs.hash(this.password, salt);
+    next();
+  } catch (error) {
+    next(error);
+  }
 });
 
 // Method to compare passwords
 userSchema.methods.matchPassword = async function (enteredPassword) {
   return await bcryptjs.compare(enteredPassword, this.password);
+};
+
+// Method to generate JWT token
+userSchema.methods.generateToken = function () {
+  return jwt.sign(
+    { id: this._id },
+    process.env.JWT_SECRET,
+    { expiresIn: '30d' }
+  );
 };
 
 export default mongoose.model('User', userSchema);

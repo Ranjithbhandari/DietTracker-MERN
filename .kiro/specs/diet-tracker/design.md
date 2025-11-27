@@ -62,6 +62,9 @@ The DietTracker is a full-stack MERN application consisting of a RESTful API bac
 - Tailwind CSS (Styling)
 - axios (HTTP client)
 - React Router (Routing)
+- Recharts (Charts and data visualization)
+- react-hot-toast (Toast notifications)
+- date-fns (Date formatting and manipulation)
 
 ## Components and Interfaces
 
@@ -114,6 +117,18 @@ The DietTracker is a full-stack MERN application consisting of a RESTful API bac
 }
 ```
 
+**Weight Model (`models/Weight.js`)**
+```javascript
+{
+  userId: ObjectId (ref: 'User', required, indexed),
+  date: Date (required, indexed),
+  weight: Number (required, kg, min: 20, max: 300),
+  notes: String (optional),
+  createdAt: Date,
+  updatedAt: Date
+}
+```
+
 #### 3. Middleware
 
 **Authentication Middleware (`middleware/auth.js`)**
@@ -135,8 +150,15 @@ The DietTracker is a full-stack MERN application consisting of a RESTful API bac
 **Meal Routes (`routes/meals.js`)**
 - `POST /api/meals` - Create meal entry (protected)
 - `GET /api/meals/today` - Get today's meals (protected)
-- `GET /api/meals/history` - Get last 7-10 days summary (protected)
+- `GET /api/meals/history` - Get last 30 days summary (protected)
 - `DELETE /api/meals/:id` - Delete meal entry (protected)
+
+**Weight Routes (`routes/weight.js`)**
+- `POST /api/weight` - Log weight entry (protected)
+- `GET /api/weight/latest` - Get current weight (protected)
+- `GET /api/weight/history` - Get weight history for charts (protected)
+- `GET /api/weight/trend` - Get weight trend analysis (protected)
+- `DELETE /api/weight/:id` - Delete weight entry (protected)
 
 #### 5. Server Configuration (`server.js`)
 - Initializes Express app
@@ -177,11 +199,21 @@ const baseURL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 - Redirects to profile/assessment on success
 
 **Dashboard Page (`src/pages/Dashboard.jsx`)**
-- Displays today's meals
-- Shows progress ring with calories consumed/target
-- Lists meals with edit/delete options
-- Shows remaining calories
-- Link to add meal page
+- Fetches all data in parallel (meals/today, water/today, activities/today, weight/latest)
+- Shows beautiful loading skeleton with spinner during data fetch
+- Displays 5 metric cards: Net Calories, Calories Burned, Protein Intake, Water Progress, Current Weight
+- Shows "Start logging your first meal!" card when no data exists
+- Listens to global "dataUpdated" events and refetches automatically
+- Handles errors with toast notifications
+
+**Weight Tracker Page (`src/pages/WeightTracker.jsx`)**
+- Weight input field with validation (20-300kg range)
+- Date picker defaulting to today
+- Optional notes field
+- Beautiful line chart using Recharts showing 90-day weight progress
+- Trend analysis with color-coded arrows (📈📉➡️)
+- Delete functionality for weight entries
+- Real-time updates when weight is logged
 
 **Profile Page (`src/pages/Profile.jsx`)**
 - Diet assessment form
@@ -196,9 +228,13 @@ const baseURL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 - Redirects to dashboard
 
 **History Page (`src/pages/History.jsx`)**
-- Displays last 7-10 days
-- Shows date, total calories, compliance status
-- Color-coded status indicators (green: on-track, red: over, yellow: under)
+- Displays comprehensive 30-day history with daily rows
+- Each day shows: Date, Weight (if logged), Calories Consumed, Calories Burned, Net Calories, Water (ml), Fasting Duration
+- Progress bars: Green (calorie deficit), Red (calorie surplus)
+- Beautiful glassmorphism table/card design
+- Export to CSV functionality
+- Real-time updates when data changes
+- Mobile responsive design
 
 #### 4. Components
 
@@ -222,10 +258,16 @@ const baseURL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 - Wraps protected pages
 - Redirects to login if not authenticated
 
-#### 5. Routing (`src/App.jsx`)
+#### 5. Global Event System (`src/utils/events.js`)
+- Custom event dispatcher for real-time updates
+- Events: "dataUpdated", "weightUpdated", "userUpdated"
+- Event listeners in Dashboard and History components
+- Automatic data refetching on events
+
+#### 6. Routing (`src/App.jsx`)
 - React Router setup
 - Public routes: /, /login, /register
-- Protected routes: /dashboard, /profile, /add-meal, /history
+- Protected routes: /dashboard, /profile, /add-meal, /history, /weight-tracker
 
 ## Data Models
 
@@ -396,6 +438,62 @@ After analyzing all acceptance criteria, several properties can be consolidated:
 **Property 22: Input validation**
 *For any* API endpoint receiving invalid data (missing required fields, wrong types, out of range values), the system SHALL return 400 status with a descriptive error message.
 **Validates: Requirements 12.1**
+
+### Dashboard and Real-time Update Properties
+
+**Property 23: Parallel data fetching**
+*For any* dashboard load, all required data (meals/today, water/today, activities/today, weight/latest) SHALL be fetched in parallel and complete within 1 second under normal conditions.
+**Validates: Requirements 13.1**
+
+**Property 24: Real-time data updates**
+*For any* data modification (add/update/delete), a global "dataUpdated" event SHALL be dispatched, and all listening components SHALL refetch their data automatically.
+**Validates: Requirements 13.4**
+
+**Property 25: Dashboard loading states**
+*For any* dashboard load, a loading skeleton with spinner SHALL be displayed until all data is fetched, and error states SHALL show toast notifications.
+**Validates: Requirements 13.2, 13.5**
+
+### Weight Tracking Properties
+
+**Property 26: Weight entry validation**
+*For any* weight entry, the weight value SHALL be between 20-300kg, and invalid entries SHALL be rejected with appropriate error messages.
+**Validates: Requirements 14.1, 14.2**
+
+**Property 27: Weight trend calculation**
+*For any* weight history with 7 or more entries, the trend SHALL be calculated as: up if latest average > previous average, down if latest < previous, stable if difference ≤ 0.5kg.
+**Validates: Requirements 14.4**
+
+**Property 28: Weight chart data integrity**
+*For any* weight chart display, all data points SHALL correspond to actual weight entries, and the chart SHALL show accurate dates and values over the last 90 days.
+**Validates: Requirements 14.3**
+
+### History and Export Properties
+
+**Property 29: 30-day history completeness**
+*For any* history page load, exactly 30 days SHALL be displayed (including days with no data), and each day SHALL show all available metrics (weight, calories, water, fasting).
+**Validates: Requirements 15.1, 15.2**
+
+**Property 30: CSV export accuracy**
+*For any* CSV export, the exported data SHALL contain exactly the same information displayed on the history page, with proper headers and formatting.
+**Validates: Requirements 15.5**
+
+**Property 31: Progress bar calculation**
+*For any* day in history, the progress bar color SHALL be green if net calories < 0 (deficit), red if net calories > 0 (surplus), and the bar length SHALL represent the magnitude.
+**Validates: Requirements 15.3**
+
+### Enhanced Dashboard Properties
+
+**Property 32: Net calories calculation**
+*For any* dashboard display, net calories SHALL equal total calories consumed minus total calories burned from activities.
+**Validates: Requirements 16.1**
+
+**Property 33: Protein target calculation**
+*For any* user with recorded weight, the protein target SHALL be 2g per kg of body weight, and progress SHALL be calculated as (consumed protein / target) × 100.
+**Validates: Requirements 16.2**
+
+**Property 34: Current weight display**
+*For any* dashboard with weight data, the current weight SHALL be the most recent weight entry, and the trend arrow SHALL match the calculated trend direction.
+**Validates: Requirements 16.5**
 
 ## Error Handling
 

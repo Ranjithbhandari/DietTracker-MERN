@@ -35,22 +35,47 @@ export const calculateCalorieTarget = (tdee, goal) => {
   }
 };
 
-// Macro distribution percentages by diet type
-const macroDist = {
-  balanced: { protein: 0.3, carbs: 0.4, fat: 0.3 },
-  low_carb: { protein: 0.35, carbs: 0.25, fat: 0.4 },
-  high_protein: { protein: 0.4, carbs: 0.3, fat: 0.3 },
-  keto: { protein: 0.25, carbs: 0.05, fat: 0.7 },
-};
-
-// Calculate macros
-export const calculateMacros = (calories, dietType) => {
-  const dist = macroDist[dietType] || macroDist.balanced;
+// Science-based macro calculation using exact formulas
+export const calculateMacros = (calories, dietType, weight) => {
+  // Protein: 2.0g per kg body weight (rounded)
+  const protein = Math.round(2.0 * weight);
+  const proteinCalories = protein * 4;
+  
+  let fat, carbs, fatCalories, carbCalories;
+  
+  if (dietType === 'keto') {
+    // Keto: set carbs to 30g max, rest to fat
+    carbs = 30;
+    carbCalories = carbs * 4;
+    fatCalories = calories - proteinCalories - carbCalories;
+    fat = Math.round(fatCalories / 9);
+  } else if (dietType === 'low_carb') {
+    // Low carb: reduce carbs by 40%, add saved calories to fat
+    // Start with 30% fat baseline
+    const baseFatCalories = calories * 0.30;
+    const baseCarbCalories = calories - proteinCalories - baseFatCalories;
+    
+    // Reduce carbs by 40%
+    carbCalories = baseCarbCalories * 0.6;
+    carbs = Math.round(carbCalories / 4);
+    
+    // Add saved carb calories to fat
+    fatCalories = baseFatCalories + (baseCarbCalories * 0.4);
+    fat = Math.round(fatCalories / 9);
+  } else {
+    // Balanced and high_protein: Fat = 30% of daily calories
+    fatCalories = calories * 0.30;
+    fat = Math.round(fatCalories / 9);
+    
+    // Carbs = remaining calories after protein & fat
+    carbCalories = calories - proteinCalories - fatCalories;
+    carbs = Math.round(carbCalories / 4);
+  }
   
   return {
-    protein: Math.round((calories * dist.protein) / 4),
-    carbs: Math.round((calories * dist.carbs) / 4),
-    fat: Math.round((calories * dist.fat) / 9),
+    protein,
+    carbs: Math.max(carbs, 0), // Ensure non-negative
+    fat: Math.max(fat, 0), // Ensure non-negative
   };
 };
 
@@ -59,7 +84,7 @@ export const calculateAssessment = (age, gender, height, weight, activityLevel, 
   const bmr = calculateBMR(age, gender, height, weight);
   const tdee = calculateTDEE(bmr, activityLevel);
   const calorieTarget = calculateCalorieTarget(tdee, goal);
-  const macros = calculateMacros(calorieTarget, dietType);
+  const macros = calculateMacros(calorieTarget, dietType, weight);
 
   return {
     bmr: Math.round(bmr),

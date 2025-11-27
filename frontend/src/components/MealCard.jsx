@@ -1,8 +1,11 @@
 
 
 import { useState } from 'react';
+import toast from 'react-hot-toast';
+import api from '../api/axios';
+import { dispatchDataUpdate } from '../utils/events';
 
-export default function MealCard({ meal, onDelete }) {
+export default function MealCard({ meal, onUpdate }) {
   const [isDeleting, setIsDeleting] = useState(false);
   
   const getMealTypeIcon = (type) => {
@@ -65,9 +68,25 @@ export default function MealCard({ meal, onDelete }) {
   };
 
   const handleDelete = async () => {
+    if (!window.confirm('Are you sure you want to delete this meal?')) {
+      return;
+    }
+
     setIsDeleting(true);
     try {
-      await onDelete(meal._id);
+      await api.delete(`/meals/${meal._id}`);
+      toast.success('Meal deleted successfully! 🗑️');
+      
+      // Dispatch global data update event
+      dispatchDataUpdate();
+      
+      // Call onUpdate callback if provided
+      if (onUpdate) {
+        onUpdate();
+      }
+    } catch (error) {
+      console.error('Delete meal error:', error);
+      toast.error('Failed to delete meal. Please try again.');
     } finally {
       setIsDeleting(false);
     }

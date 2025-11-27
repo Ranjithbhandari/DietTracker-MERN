@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import toast from 'react-hot-toast';
 import api from '../api/axios';
 
 export default function History() {
@@ -78,6 +79,49 @@ export default function History() {
     });
   };
 
+  const exportToCSV = () => {
+    const csvHeaders = [
+      'Date',
+      'Calories Consumed',
+      'Target Calories',
+      'Difference',
+      'Protein (g)',
+      'Carbs (g)',
+      'Fat (g)',
+      'Compliance Status',
+      'Meal Count'
+    ];
+
+    const csvData = history.map(day => [
+      formatDate(day.date),
+      day.totalCalories,
+      day.target,
+      day.difference,
+      day.totalProtein,
+      day.totalCarbs,
+      day.totalFat,
+      day.status,
+      day.mealCount
+    ]);
+
+    const csvContent = [
+      csvHeaders.join(','),
+      ...csvData.map(row => row.join(','))
+    ].join('\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute('download', `diet-history-${new Date().toISOString().split('T')[0]}.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    
+    toast.success('History exported to CSV! 📊');
+  };
+
   if (loading) {
     return (
       <div style={{ 
@@ -134,8 +178,41 @@ export default function History() {
             History
           </h1>
           <p style={{ color: 'rgba(255,255,255,0.9)', fontSize: '1.1rem' }}>
-            Your last 10 days of nutrition tracking
+            Your last 30 days of comprehensive nutrition tracking
           </p>
+          
+          {/* Export Button */}
+          {history.length > 0 && (
+            <button
+              onClick={exportToCSV}
+              style={{
+                background: 'rgba(255, 255, 255, 0.1)',
+                backdropFilter: 'blur(10px)',
+                border: '1px solid rgba(255, 255, 255, 0.2)',
+                color: '#ffffff',
+                fontSize: '0.9rem',
+                fontWeight: '600',
+                padding: '0.75rem 1.5rem',
+                borderRadius: '50px',
+                cursor: 'pointer',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '0.5rem',
+                transition: 'all 0.3s ease',
+                marginTop: '1rem'
+              }}
+              onMouseOver={(e) => {
+                e.target.style.background = 'rgba(255, 255, 255, 0.2)';
+                e.target.style.transform = 'translateY(-2px)';
+              }}
+              onMouseOut={(e) => {
+                e.target.style.background = 'rgba(255, 255, 255, 0.1)';
+                e.target.style.transform = 'translateY(0)';
+              }}
+            >
+              📊 Export to CSV
+            </button>
+          )}
         </div>
 
         {error && (

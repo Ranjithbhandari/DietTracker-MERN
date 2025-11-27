@@ -1,26 +1,12 @@
 import axios from 'axios';
 
-// Determine API base URL based on environment
-const getBaseURL = () => {
-  // Check if VITE_API_URL is set in environment
-  if (import.meta.env.VITE_API_URL) {
-    return import.meta.env.VITE_API_URL;
-  }
-
-  // Development fallback
-  if (import.meta.env.DEV) {
-    return 'http://localhost:5000/api';
-  }
-
-  // Production fallback (should use VITE_API_URL)
-  return 'http://localhost:5000/api';
-};
-
+// Create axios instance with correct base URL
 const api = axios.create({
-  baseURL: getBaseURL(),
+  baseURL: 'http://localhost:5000/api',
   headers: {
     'Content-Type': 'application/json',
   },
+  timeout: 10000, // 10 second timeout
 });
 
 // Request interceptor to add JWT token
@@ -33,20 +19,31 @@ api.interceptors.request.use(
     return config;
   },
   (error) => {
+    console.error('Request interceptor error:', error);
     return Promise.reject(error);
   }
 );
 
 // Response interceptor for error handling
 api.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    return response;
+  },
   (error) => {
+    console.error('API Error:', error.response?.data || error.message);
+    
     if (error.response?.status === 401) {
       // Clear token and redirect to login
       localStorage.removeItem('token');
       localStorage.removeItem('user');
-      window.location.href = '/login';
+      
+      // Only redirect if not already on login/register page
+      if (!window.location.pathname.includes('/login') && 
+          !window.location.pathname.includes('/register')) {
+        window.location.href = '/login';
+      }
     }
+    
     return Promise.reject(error);
   }
 );

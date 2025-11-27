@@ -1,14 +1,14 @@
 import express from 'express';
 import mongoose from 'mongoose';
 import Meal from '../models/Meal.js';
-import { protect } from '../middleware/auth.js';
+import { protect as auth } from '../middleware/auth.js';
 
 const router = express.Router();
 
 // @route   POST /api/meals
 // @desc    Create a meal entry
 // @access  Private
-router.post('/', protect, async (req, res) => {
+router.post('/', auth, async (req, res) => {
   try {
     const { mealType, foodName, calories, protein, carbs, fat } = req.body;
 
@@ -47,7 +47,7 @@ router.post('/', protect, async (req, res) => {
 // @route   GET /api/meals/today
 // @desc    Get today's meals
 // @access  Private
-router.get('/today', protect, async (req, res) => {
+router.get('/today', auth, async (req, res) => {
   try {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
@@ -86,7 +86,7 @@ router.get('/today', protect, async (req, res) => {
 // @route   DELETE /api/meals/:id
 // @desc    Delete a meal entry
 // @access  Private
-router.delete('/:id', protect, async (req, res) => {
+router.delete('/:id', auth, async (req, res) => {
   try {
     const meal = await Meal.findById(req.params.id);
 
@@ -122,19 +122,19 @@ router.delete('/:id', protect, async (req, res) => {
 // @route   GET /api/meals/history
 // @desc    Get meal history (last 7-10 days)
 // @access  Private
-router.get('/history', protect, async (req, res) => {
+router.get('/history', auth, async (req, res) => {
   try {
     const today = new Date();
     today.setHours(23, 59, 59, 999);
-    const tenDaysAgo = new Date(today);
-    tenDaysAgo.setDate(tenDaysAgo.getDate() - 10);
-    tenDaysAgo.setHours(0, 0, 0, 0);
+    const thirtyDaysAgo = new Date(today);
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+    thirtyDaysAgo.setHours(0, 0, 0, 0);
 
     const meals = await Meal.aggregate([
       {
         $match: {
           userId: new mongoose.Types.ObjectId(req.user.id),
-          date: { $gte: tenDaysAgo, $lte: today },
+          date: { $gte: thirtyDaysAgo, $lte: today },
         },
       },
       {
