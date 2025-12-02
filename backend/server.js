@@ -63,7 +63,9 @@ app.get('/api/health', (_req, res) => {
 app.get('/api/test', (_req, res) => {
   res.json({ message: 'API is working!' });
 });
-
+app.get('/', (_req, res) => {
+  res.redirect('/api/health');
+});
 // 404 handler
 app.use((req, res) => {
   res.status(404).json({
